@@ -7,6 +7,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/color_list_layout.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_display.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/fragment_selection.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_seletion.xml" value="0.35520833333333335" />
       </map>
     </option>
