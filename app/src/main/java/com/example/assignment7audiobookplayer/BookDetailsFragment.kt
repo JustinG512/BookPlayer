@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 
-class DisplayFragment : Fragment() {
+class BookDetailsFragment : Fragment() {
 
     lateinit var colorViewModel: ColorViewModel
 
@@ -21,7 +21,7 @@ class DisplayFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_display, container, false)
+        return inflater.inflate(R.layout.fragment_book_details, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

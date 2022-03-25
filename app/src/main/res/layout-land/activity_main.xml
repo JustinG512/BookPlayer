@@ -16,7 +16,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container2"
-        android:name="com.example.assignment7audiobookplayer.DisplayFragment"
+        android:name="com.example.assignment7audiobookplayer.BookDetailsFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

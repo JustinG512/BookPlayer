@@ -9,6 +9,16 @@ class MainActivity : AppCompatActivity(), SelectionFragment.SelectionFragmentInt
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+
+//        val bookList = BookList()
+//        val titleArray: Array<String> = resources.getStringArray(R.array.book_titles)
+//        val authorArray: Array<String> = resources.getStringArray(R.array.book_authors)
+//
+//        for (i in 0..9) {
+//            bookList.add(Book(titleArray[i], authorArray[i]))
+//        }
+
         supportFragmentManager
             .beginTransaction()
             .add(R.id.container1, SelectionFragment.newInstance(getColors()))
@@ -17,25 +27,25 @@ class MainActivity : AppCompatActivity(), SelectionFragment.SelectionFragmentInt
     }
 
     fun getColors(): Array<String> = arrayOf(
-        "Red",
-        "Black",
-        "Green",
-        "Blue",
-        "Yellow",
-        "White",
-        "Magenta",
-        "Grey",
-        "Teal",
-        "Lime",
-        "Maroon",
-        "Navy"
+//        "Red",
+//        "Black",
+//        "Green",
+//        "Blue",
+//        "Yellow",
+        "White"
+//        "Magenta",
+//        "Grey",
+//        "Teal",
+//        "Lime",
+//        "Maroon",
+//        "Navy"
     )
 
     override fun colorSelected() {
         if (findViewById<View>(R.id.container2) == null)
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container1, DisplayFragment())
+                .replace(R.id.container1, BookDetailsFragment())
                 .addToBackStack(null)
                 .commit()
     }
