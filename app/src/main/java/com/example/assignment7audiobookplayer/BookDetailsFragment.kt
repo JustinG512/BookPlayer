@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 
 class BookDetailsFragment : Fragment() {
 
-    lateinit var colorViewModel: ColorViewModel
+    lateinit var bookViewModel: BookViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        colorViewModel = ViewModelProvider(requireActivity()).get(ColorViewModel::class.java)
+        bookViewModel = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -27,9 +27,9 @@ class BookDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        colorViewModel.getSelectedColor().observe(requireActivity()) {
-            view.setBackgroundColor(Color.parseColor(it))
-        }
+//        bookViewModel.getSelectedColor().observe(requireActivity()) {
+//            view.setBackgroundColor(Color.parseColor(it))
+//        }
 
     }
 

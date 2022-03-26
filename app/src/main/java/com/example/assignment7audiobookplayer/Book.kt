@@ -1,9 +1,9 @@
 package com.example.assignment7audiobookplayer
 
-class Book {
+class Book(inTitle: String, inAuthor: String) {
 
-    private val title: String? = null
-    private val author: String? = null
+    val title: String = inTitle
+    val author: String = inAuthor
 
 
 }
