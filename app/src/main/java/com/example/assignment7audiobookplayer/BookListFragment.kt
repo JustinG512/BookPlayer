@@ -1,23 +1,23 @@
 package com.example.assignment7audiobookplayer
 
-import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+/*BookList fragment*/
 private const val BOOKS_KEY = "books_key"
 
 class BookListFragment : Fragment() {
     private var books: BookList? = null
-    //private var recyclerView : RecyclerView? = null
     private lateinit var bookViewModel : BookViewModel
 
+    /*onCreate function*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,14 +28,16 @@ class BookListFragment : Fragment() {
         }
     }
 
+    /*onCreateView function*/
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_book_list, container, false) as RecyclerView
     }
 
+    /*onViewCreated function*/
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with (view as RecyclerView) {
@@ -52,15 +54,16 @@ class BookListFragment : Fragment() {
         }
     }
 
+    /*BookListAdapter function*/
     class BookListAdapter(_books: BookList, _clickEvent: (Book)->Unit) : RecyclerView.Adapter<BookListAdapter.BookListViewHolder>() {
 
-        val books = _books
+        private val books = _books
         val clickEvent = _clickEvent
 
         class BookListViewHolder(_view: View) : RecyclerView.ViewHolder(_view){
-            val view = _view;
-            val title = _view.findViewById<TextView>(R.id.textView_title)
-            val author = _view.findViewById<TextView>(R.id.textView_author)
+            val view = _view
+            val title: TextView = _view.findViewById(R.id.textView_title)
+            val author: TextView = _view.findViewById(R.id.textView_author)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookListViewHolder {

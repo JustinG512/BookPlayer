@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+/*This class was built in class during the demo and modified to fit the assignment.*/
 class BookViewModel : ViewModel() {
-    val selectedBook : MutableLiveData<Book> by lazy {
+
+    private val selectedBook : MutableLiveData<Book> by lazy {
         MutableLiveData<Book>()
     }
 

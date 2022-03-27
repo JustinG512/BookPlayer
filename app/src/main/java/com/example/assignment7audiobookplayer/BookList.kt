@@ -3,9 +3,10 @@ package com.example.assignment7audiobookplayer
 import android.os.Parcel
 import android.os.Parcelable
 
+/*Standard parcelable class to populate via Book */
 class BookList(): Parcelable {
 
-    private val list : ArrayList<Book> = ArrayList<Book>()
+    private val list : ArrayList<Book> = ArrayList()
 
     constructor(parcel: Parcel) : this() {
         parcel.writeList(list)
@@ -15,9 +16,11 @@ class BookList(): Parcelable {
         list.add(_book)
     }
 
-    fun remove(_book : Book){
-        list.remove(_book)
-    }
+    /*This is not used but should be kept for the assignment to be complete at a
+    * possible later date*/
+//    fun remove(_book : Book){
+//        list.remove(_book)
+//    }
 
     operator fun get(x : Int) : Book{
         return list[x]
