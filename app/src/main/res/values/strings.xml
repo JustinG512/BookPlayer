@@ -12,6 +12,8 @@
         <item>Revenge Of The Sith</item>
         <item>Kenobi</item>
         <item>The Rise Of Darth Vader</item>
+        <item>Test: LAST BOOK ENTERED</item>
+        <item>Test: 2nd BOOK ENTERED</item>
     </string-array>
     <string-array name="book_authors">
         <item>Timothy Zahn</item>
@@ -24,5 +26,7 @@
         <item>Matthew Woodring Stover</item>
         <item>John Jackson Miller</item>
         <item>James Luceno</item>
+        <item>TEST: LAST AUTHOR ENTERED</item>
+        <item>TEST: 2nd AUTHOR ENTERED</item>
     </string-array>
 </resources>

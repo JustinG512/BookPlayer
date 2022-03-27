@@ -3,6 +3,7 @@ package com.example.assignment7audiobookplayer
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -20,12 +21,21 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         val titleArray: Array<String> = resources.getStringArray(R.array.book_titles)
         val authorArray: Array<String> = resources.getStringArray(R.array.book_authors)
 
-        for (i in 0..9) {
+        titleArray.size
+
+        for (i in 0..(titleArray.size-1)) {
             bookList.add(Book(titleArray[i], authorArray[i]))
             Log.d("Title:", titleArray[i])
             Log.d("Author:", titleArray[i])
 
         }
+
+//        for (i in 0..10) {
+//            bookList.add(Book(titleArray[i], authorArray[i]))
+//            Log.d("Title:", titleArray[i])
+//            Log.d("Author:", titleArray[i])
+//
+//        }
 
         val fragment = supportFragmentManager.findFragmentById(R.id.container1)
         if (fragment!= null)
@@ -49,8 +59,17 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 //                .commit()
 //    }
 
+//    val title = findViewById<TextView>(R.id.textView_title2)
+//    val author = findViewById<TextView>(R.id.textView_author2)
+
+
     override fun bookSelected() {
-        val toast = Toast.makeText(applicationContext, "You clicked a book", Toast.LENGTH_LONG)
-        toast.show()
+        if (findViewById<View>(R.id.container2) == null)
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container1, BookDetailsFragment())
+                .addToBackStack(null)
+                .commit()
+
     }
 }
