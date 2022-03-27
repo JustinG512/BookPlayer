@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 
 class BookDetailsFragment : Fragment() {
@@ -27,9 +28,14 @@ class BookDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        bookViewModel.getSelectedColor().observe(requireActivity()) {
-//            view.setBackgroundColor(Color.parseColor(it))
-//        }
+        bookViewModel.getSelectedBook().observe(requireActivity()) {
+            val title = view.findViewById<TextView>(R.id.textView_title2)
+            val author = view.findViewById<TextView>(R.id.textView_author2)
+            title.text = it.title
+            author.text = it.author
+        }
+
+
 
     }
 
