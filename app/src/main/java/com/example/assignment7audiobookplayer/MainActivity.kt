@@ -1,15 +1,14 @@
 /*Assignment Self Grading Live Tracker
 
-[X] Application has layouts for portrait and landscape configurations 10%
-[X] BookListFragment has a factory method that can create new fragment instances 10%
-[X] BookListFragment has RecyclerView that shows both title and author in their own
-        TextViews 10%
-[X] BookListFragment properly communicates selected book using ViewModel 15%
-[X] Proper master-detail implementation when in small-portrait mode (new
-        BookDetailsFragment created when book is clicked which replaces BookListFragment) 15%
-[X] Proper master-detail implementation when in large-portrait or landscape mode (Single
-        instance of BookDetailsFragment being updated when book is clicked) 20%
-[X] Selected book and fragment display is remembered across orientation changes 20%*/
+[X] Search button added to main activity to launch Search 5%
+[X] Android’s built-in Search Dialog is successfully launched when use clicks search button 15%
+[X] BookDetailsFragment is updated to show book cover image 5%
+[X] User is able to perform a search to the Web Service and receive all or a subset of books 25%
+[X] App always shows the BookListFragment after a search is performed 15%
+[X] Updates BookListFragment’s RecyclerView with new books after search is complete 20%
+[X] Once retrieved, a list of books is retained if the activity is restarted (device rotated from
+    portrait to landscape or vice-versa), until the user performs another search – books returned
+    from new search will always replace old books 15% */
 
 package com.example.assignment7audiobookplayer
 
@@ -37,12 +36,10 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val searchButton = findViewById<Button>(R.id.searchButton)
+        val searchButton = findViewById<Button>(R.id.button_Search)
 
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
         val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
-
-        Log.d("TEST", "Main 1")
 
         searchButton.setOnClickListener {
             onSearchRequested()
@@ -109,7 +106,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             tempImg = jsonObject.getString("cover_url")
             tempBook = Book(tempTitle, tempAuthor, tempId, tempImg)
             tempBookList.add(tempBook)
-            Log.d("Book", "$tempTitle $tempAuthor $tempId $tempImg")
         }
 
         //if(jsonArray.length() != 0){
