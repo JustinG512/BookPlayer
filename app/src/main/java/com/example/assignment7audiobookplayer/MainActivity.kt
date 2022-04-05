@@ -13,47 +13,120 @@
 
 package com.example.assignment7audiobookplayer
 
+import android.app.SearchManager
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.URL
 
-/*Main Activity*/
+lateinit var bookListVM: BookListViewModel
+
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bookList = BookList() // Create new bookList from class BookList
-        /*Receive information from strings.xml file*/
-        val titleArray: Array<String> = resources.getStringArray(R.array.book_titles)
-        val authorArray: Array<String> = resources.getStringArray(R.array.book_authors)
+        val searchButton = findViewById<Button>(R.id.searchButton)
 
-        /*Loop through the length of the array in strings.xmla and add to bookList Title, then
-        * Author, then loop until the entries are imported*/
-        for (i in titleArray.indices) {
-            bookList.add(Book(titleArray[i], authorArray[i]))
+        bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
+        val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
+
+        Log.d("TEST", "Main 1")
+
+        searchButton.setOnClickListener {
+            onSearchRequested()
+            if (supportFragmentManager.backStackEntryCount > 0)
+                supportFragmentManager.popBackStack()
         }
 
-        /*Begin with container one*/
-        val fragment = supportFragmentManager.findFragmentById(R.id.container1)
-        if (fragment != null)
-            supportFragmentManager.beginTransaction().remove(fragment).commit()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.container1, BookListFragment.newInstance(bookList))
-            .commit()
+        val fragment = supportFragmentManager.findFragmentById(R.id.container1)
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction().remove(fragment).commit()
+        }
+
+        if (supportFragmentManager.backStackEntryCount > 0)
+            supportFragmentManager.popBackStack()
+        else
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container1, BookListFragment())
+                .commit()
+
+        if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
+            bookSelected()
+        }
     }
 
-
-    /*If book is selected this will add information to container two based off of what is
-    * listed in container 1*/
     override fun bookSelected() {
-        if (findViewById<View>(R.id.container2) == null)
+        if (findViewById<View>(R.id.container2) == null) {
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container1, BookDetailsFragment())
                 .addToBackStack(null)
                 .commit()
+        }
+    }
+
+    private suspend fun searchBooks(search: String) {
+
+        var jsonArray: JSONArray
+        var jsonObject: JSONObject
+        var tempTitle: String
+        var tempAuthor: String
+        var tempId: Int
+        var tempImg: String
+        var tempBook: Book
+        val tempBookList = BookList()
+
+        withContext(Dispatchers.IO) {
+            jsonArray = JSONArray(
+                URL("https://kamorris.com/lab/cis3515/search.php?term=$search")
+                    .openStream()
+                    .bufferedReader()
+                    .readLine()
+            )
+        }
+
+        Log.d("TEST", jsonArray.toString())
+
+        for (i in 0 until jsonArray.length()) {
+            jsonObject = jsonArray.getJSONObject(i)
+            tempTitle = jsonObject.getString("title")
+            tempAuthor = jsonObject.getString("author")
+            tempId = jsonObject.getInt("id")
+            tempImg = jsonObject.getString("cover_url")
+            tempBook = Book(tempTitle, tempAuthor, tempId, tempImg)
+            tempBookList.add(tempBook)
+            Log.d("Book", "$tempTitle $tempAuthor $tempId $tempImg")
+        }
+
+        //if(jsonArray.length() != 0){
+        bookListVM.setBookList(tempBookList)
+        bookListVM.increment()
+        //}
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+
+        super.onNewIntent(intent)
+        if (Intent.ACTION_SEARCH == intent!!.action) {
+            intent.getStringExtra(SearchManager.QUERY)?.also { query ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    searchBooks(query)
+                }
+            }
+        }
     }
 }

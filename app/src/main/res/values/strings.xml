@@ -1,32 +1,6 @@
 <resources>
     <string name="app_name">Assignment 7 AudioBookPlayer</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string-array name="book_titles">
-        <item>TEST: First Book</item>
-        <item>Heir To The Empire</item>
-        <item>Path Of Destruction</item>
-        <item>The Last Command</item>
-        <item>Dark Force Rising</item>
-        <item>Darth Plagueis</item>
-        <item>Rule Of Two</item>
-        <item>Dynasty Of Evil</item>
-        <item>Revenge Of The Sith</item>
-        <item>Kenobi</item>
-        <item>The Rise Of Darth Vader</item>
-        <item>Test: LAST BOOK ENTERED</item>
-    </string-array>
-    <string-array name="book_authors">
-        <item>TEST: First Author</item>
-        <item>Timothy Zahn</item>
-        <item>Drew Karpyshyn</item>
-        <item>Timothy Zahn</item>
-        <item>Timothy Zahn</item>
-        <item>James Luceno</item>
-        <item>Drew Karpyshyn</item>
-        <item>Drew Karpyshyn</item>
-        <item>Matthew Woodring Stover</item>
-        <item>John Jackson Miller</item>
-        <item>James Luceno</item>
-        <item>TEST: LAST AUTHOR ENTERED</item>
-    </string-array>
+    <string name="app_label">AudioBookPlayer</string>
+    <string name="search_hint">Search for Book</string>
 </resources>

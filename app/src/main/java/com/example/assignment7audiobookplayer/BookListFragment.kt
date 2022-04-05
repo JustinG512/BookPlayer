@@ -10,25 +10,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-/*BookList fragment*/
-private const val BOOKS_KEY = "books_key"
-
 class BookListFragment : Fragment() {
-    private var books: BookList? = null
+    //private var recyclerView : RecyclerView? = null
     private lateinit var bookViewModel : BookViewModel
+    private lateinit var bookListVM: BookListViewModel
 
-    /*onCreate function*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        bookViewModel = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
-
-        arguments?.let {
-            books = it.getParcelable(BOOKS_KEY)
-        }
+        bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
+        bookListVM = ViewModelProvider(requireActivity())[BookListViewModel::class.java]
     }
 
-    /*onCreateView function*/
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,14 +30,28 @@ class BookListFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_book_list, container, false) as RecyclerView
     }
 
-    /*onViewCreated function*/
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with (view as RecyclerView) {
 
-            books?.run{
-                val clickEvent = {
-                        book:Book -> bookViewModel.setSelectedBook(book)
+            var books = BookList()
+
+            bookListVM.getIncrement().observe(requireActivity()) {
+
+                books = bookListVM.getBookList()
+
+                books.run{
+                    val clickEvent = { book:Book -> bookViewModel.setSelectedBook(book)
+                        (requireActivity() as SelectionFragmentInterface).bookSelected()
+                    }
+
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = BookListAdapter(this, clickEvent)
+                }
+            }
+
+            books.run{
+                val clickEvent = { book:Book -> bookViewModel.setSelectedBook(book)
                     (requireActivity() as SelectionFragmentInterface).bookSelected()
                 }
 
@@ -54,7 +61,6 @@ class BookListFragment : Fragment() {
         }
     }
 
-    /*BookListAdapter function*/
     class BookListAdapter(_books: BookList, _clickEvent: (Book)->Unit) : RecyclerView.Adapter<BookListAdapter.BookListViewHolder>() {
 
         private val books = _books
@@ -62,8 +68,8 @@ class BookListFragment : Fragment() {
 
         class BookListViewHolder(_view: View) : RecyclerView.ViewHolder(_view){
             val view = _view
-            val title: TextView = _view.findViewById(R.id.textView_title)
-            val author: TextView = _view.findViewById(R.id.textView_author)
+            val title: TextView = _view.findViewById(R.id.titleTextView)
+            val author: TextView = _view.findViewById(R.id.authorTextView)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookListViewHolder {
@@ -82,16 +88,6 @@ class BookListFragment : Fragment() {
         override fun getItemCount(): Int {
             return books.size()
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(list : BookList) =
-            BookListFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(BOOKS_KEY, list)
-                }
-            }
     }
 
     interface SelectionFragmentInterface {
