@@ -36,6 +36,7 @@ class BookDetailsFragment : Fragment() {
             val image = view.findViewById<ImageView>(R.id.imageView)
             title.text = it.title
             author.text = it.author
+            // this works, ignore red
             Picasso.get().load(it.coverURL).into(image)
         }
     }

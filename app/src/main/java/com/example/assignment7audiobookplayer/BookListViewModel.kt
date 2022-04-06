@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 class BookListViewModel : ViewModel() {
 
     private var x : Int = 0
-    private val vmBookList : BookList = BookList()
+    private val viewModelBookList : BookList = BookList()
 
     private val change : MutableLiveData<Int> by lazy {
         MutableLiveData<Int>()
@@ -23,15 +23,15 @@ class BookListViewModel : ViewModel() {
     }
 
     fun setBookList(bookList : BookList) {
-        vmBookList.clear()
+        viewModelBookList.clear()
 
         for(i in 0 until bookList.size()){
-            vmBookList.add(bookList[i])
+            viewModelBookList.add(bookList[i])
         }
     }
 
     fun getBookList() : BookList {
-        return vmBookList
+        return viewModelBookList
     }
 
 }

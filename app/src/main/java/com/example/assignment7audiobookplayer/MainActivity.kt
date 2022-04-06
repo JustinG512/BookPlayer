@@ -15,7 +15,6 @@ package com.example.assignment7audiobookplayer
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +40,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
         val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
 
+        // This will open the search dialog.  This code is very similar to what was
+        // done in class during the demo.
         searchButton.setOnClickListener {
             onSearchRequested()
             if (supportFragmentManager.backStackEntryCount > 0)
@@ -48,11 +49,13 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
 
 
+        // Container 1
         val fragment = supportFragmentManager.findFragmentById(R.id.container1)
         if (fragment != null) {
             supportFragmentManager.beginTransaction().remove(fragment).commit()
         }
 
+        // Container 1
         if (supportFragmentManager.backStackEntryCount > 0)
             supportFragmentManager.popBackStack()
         else
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 .replace(R.id.container1, BookListFragment())
                 .commit()
 
+        // Container 2
         if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
         }
@@ -78,12 +82,15 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     private suspend fun searchBooks(search: String) {
 
+        // Example:
+        // {"id":"2","title":"The Island of Doctor Moreau","author":"H. G. Wells","cover_url"
+        // :"https:\/\/kamorris.com\/lab\/abp\/covers\/IslandOfDrMoreau.jpeg"}
         var jsonArray: JSONArray
         var jsonObject: JSONObject
-        var tempTitle: String
-        var tempAuthor: String
-        var tempId: Int
-        var tempImg: String
+        var tempTitle: String //"title":"The Island of Doctor Moreau"
+        var tempAuthor: String //"author":"H. G. Wells
+        var tempId: Int //"id":"2"
+        var tempCover: String // "cover_url":"https:\/\/kamorris.com\/lab\/abp\/covers\/IslandOfDrMoreau.jpeg"
         var tempBook: Book
         val tempBookList = BookList()
 
@@ -96,15 +103,16 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             )
         }
 
-        Log.d("TEST", jsonArray.toString())
 
+        // This will sort through the incoming json data until it is empty.  Results will
+        // be returned accordingly
         for (i in 0 until jsonArray.length()) {
             jsonObject = jsonArray.getJSONObject(i)
             tempTitle = jsonObject.getString("title")
             tempAuthor = jsonObject.getString("author")
             tempId = jsonObject.getInt("id")
-            tempImg = jsonObject.getString("cover_url")
-            tempBook = Book(tempTitle, tempAuthor, tempId, tempImg)
+            tempCover = jsonObject.getString("cover_url")
+            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover)
             tempBookList.add(tempBook)
         }
 
