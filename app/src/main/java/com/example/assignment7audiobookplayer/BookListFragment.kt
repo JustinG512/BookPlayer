@@ -34,7 +34,7 @@ class BookListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         with (view as RecyclerView) {
 
-            var books = BookList()
+            var books: BookList
 
             bookListVM.getIncrement().observe(requireActivity()) {
 
@@ -48,15 +48,6 @@ class BookListFragment : Fragment() {
                     layoutManager = LinearLayoutManager(context)
                     adapter = BookListAdapter(this, clickEvent)
                 }
-            }
-
-            books.run{
-                val clickEvent = { book:Book -> bookViewModel.setSelectedBook(book)
-                    (requireActivity() as SelectionFragmentInterface).bookSelected()
-                }
-
-                layoutManager = LinearLayoutManager(requireContext())
-                adapter = BookListAdapter(this, clickEvent)
             }
         }
     }
