@@ -1,11 +1,15 @@
 package com.example.assignment7audiobookplayer
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -14,17 +18,13 @@ private const val ARG_PARAM2 = "param2"
 
 
 class ControlFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var bookViewModel: BookViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
 
+        bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
 
     }
 
@@ -34,7 +34,39 @@ class ControlFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_control, container, false)
+
+
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val playButton = view.findViewById<ImageButton>(R.id.imageButton_play)
+        val seekBar = view.findViewById<SeekBar>(R.id.seekBar)
+
+
+        bookViewModel.getSelectedBook().observe(requireActivity()) {
+            val tempBook = it
+//            nowText.text = it.title
+            seekBar.max = it.duration
+            seekBar.progress = 0
+
+            playButton.setOnClickListener {
+                (requireActivity() as ControlFragment.ControlFragmentInterface).playBook(tempBook.id, seekBar.progress)
+            }
+        }
+
+
+
+
+    }
+    interface ControlFragmentInterface {
+        fun playBook(bookId : Int, progress: Int)
+    }
+
+
+
+
 
     companion object {
         /**

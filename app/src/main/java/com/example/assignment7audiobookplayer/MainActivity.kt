@@ -15,9 +15,12 @@ package com.example.assignment7audiobookplayer
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
+import android.service.controls.Control
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +33,7 @@ import java.net.URL
 
 lateinit var bookListVM: BookListViewModel
 
-class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface {
+class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface, ControlFragment.ControlFragmentInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +51,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             if (supportFragmentManager.backStackEntryCount > 0)
                 supportFragmentManager.popBackStack()
         }
+
+
 
 
         // Container 1
@@ -78,6 +83,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
         }
+
+
+
     }
 
     override fun bookSelected() {
@@ -160,5 +168,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 }
             }
         }
+    }
+
+    override fun playBook(bookId: Int, progress: Int) {
+//        TODO("Not yet implemented")
     }
 }
