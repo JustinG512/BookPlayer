@@ -15,6 +15,7 @@ package com.example.assignment7audiobookplayer
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -64,6 +65,15 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 .replace(R.id.container1, BookListFragment())
                 .commit()
 
+        // Container 3
+        if (supportFragmentManager.backStackEntryCount > 0)
+            supportFragmentManager.popBackStack()
+        else
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container3, ControlFragment())
+                .commit()
+
         // Container 2
         if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
@@ -87,9 +97,11 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         // :"https:\/\/kamorris.com\/lab\/abp\/covers\/IslandOfDrMoreau.jpeg"}
         var jsonArray: JSONArray
         var jsonObject: JSONObject
+        var jsonObjectID: JSONObject
         var tempTitle: String //"title":"The Island of Doctor Moreau"
         var tempAuthor: String //"author":"H. G. Wells
         var tempId: Int //"id":"2"
+        var tempDuration: Int // "duration":"764"
         var tempCover: String // "cover_url":"https:\/\/kamorris.com\/lab\/abp\/covers\/IslandOfDrMoreau.jpeg"
         var tempBook: Book
         val tempBookList = BookList()
@@ -103,6 +115,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             )
         }
 
+        Log.d("TEST", jsonArray.toString())
+
 
         // This will sort through the incoming json data until it is empty.  Results will
         // be returned accordingly
@@ -112,8 +126,22 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             tempAuthor = jsonObject.getString("author")
             tempId = jsonObject.getInt("id")
             tempCover = jsonObject.getString("cover_url")
-            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover)
+
+            withContext(Dispatchers.IO) {
+                jsonObjectID = JSONObject(
+                    URL("https://kamorris.com/lab/cis3515/book.php?id=$tempId")
+                        .openStream()
+                        .bufferedReader()
+                        .readLine()
+                )
+            }
+
+            tempDuration = jsonObjectID.getInt("duration")
+
+
+            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration)
             tempBookList.add(tempBook)
+            Log.d("New Book created", "Ti:$tempTitle Au:$tempAuthor Id:$tempId Dur:$tempDuration Cov:$tempCover")
         }
 
         //if(jsonArray.length() != 0){
