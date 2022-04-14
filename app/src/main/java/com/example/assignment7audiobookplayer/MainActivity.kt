@@ -13,8 +13,11 @@
 package com.example.assignment7audiobookplayer
 
 import android.app.SearchManager
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.service.controls.Control
 import android.util.Log
 import android.view.View
@@ -23,6 +26,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import edu.temple.audlibplayer.PlayerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,12 +36,23 @@ import org.json.JSONObject
 import java.net.URL
 
 lateinit var bookListVM: BookListViewModel
+lateinit var audioBinder: PlayerService.MediaControlBinder
 
-class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface, ControlFragment.ControlFragmentInterface {
+
+
+class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
+    ControlFragment.ControlFragmentInterface {
+
+    var isConnected: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        bindService(Intent(this, PlayerService::class.java)
+            , serviceConnection
+            , BIND_AUTO_CREATE)
 
         val searchButton = findViewById<Button>(R.id.button_Search)
 
@@ -51,8 +66,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             if (supportFragmentManager.backStackEntryCount > 0)
                 supportFragmentManager.popBackStack()
         }
-
-
 
 
         // Container 1
@@ -83,7 +96,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
         }
-
 
 
     }
@@ -149,7 +161,10 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
             tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration)
             tempBookList.add(tempBook)
-            Log.d("New Book created", "Ti:$tempTitle Au:$tempAuthor Id:$tempId Dur:$tempDuration Cov:$tempCover")
+            Log.d(
+                "New Book created",
+                "Ti:$tempTitle Au:$tempAuthor Id:$tempId Dur:$tempDuration Cov:$tempCover"
+            )
         }
 
         //if(jsonArray.length() != 0){
@@ -171,6 +186,30 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     }
 
     override fun playBook(bookId: Int, progress: Int) {
-//        TODO("Not yet implemented")
+        if(isConnected){
+            if(progress < 1)
+                audioBinder.play(bookId)
+            else{
+//                Log.d("Service", "${bookUri.toString()}")
+//                audioBinder.play(File(bookUri?.path), progress)
+            }
+        }
+        else
+            Log.d("Service", "NOT CONNECTED")
     }
+
+    val serviceConnection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.d("Service", "CONNECTED")
+            isConnected = true
+            audioBinder = service as PlayerService.MediaControlBinder
+//            audioBinder.setProgressHandler(progressHandler)
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            isConnected = false
+            Log.d("Service", "DISCONNECTED")
+        }
+    }
+
 }
