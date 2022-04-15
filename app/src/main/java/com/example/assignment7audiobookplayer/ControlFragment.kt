@@ -1,6 +1,8 @@
 package com.example.assignment7audiobookplayer
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,11 +11,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import java.util.*
 
 
 class ControlFragment : Fragment() {
@@ -49,7 +47,6 @@ class ControlFragment : Fragment() {
 
         bookViewModel.getSelectedBook().observe(requireActivity()) {
             val tempBook = it
-//            nowText.text = it.title
             seekBar.max = it.duration
             seekBar.progress = 0
 
@@ -70,17 +67,16 @@ class ControlFragment : Fragment() {
             seekBar?.setOnSeekBarChangeListener(object :
                 SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
-
+                    Log.d(TAG, "Slider is moving to = $progress");
                 }
-
                 override fun onStartTrackingTouch(seek: SeekBar?) {
-
                 }
-
                 override fun onStopTrackingTouch(seek: SeekBar?) {
                     (requireActivity() as ControlFragment.ControlFragmentInterface).seekBook(seek!!.progress)
+
                 }
             })
+            
         }
 
 

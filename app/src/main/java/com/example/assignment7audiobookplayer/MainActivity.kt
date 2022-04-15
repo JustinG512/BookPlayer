@@ -4,9 +4,9 @@
 [X] Properly integrate controls (Play, Stop, Pause) in ControlFragment with Now Playing label 20%
 [ ] SeekBar progress is associated with book duration 10%
 [ ] SeekBar updates as book plays to show current progress 10%
-[ ] SeekBar controls book progress when user moves progress bar 20%
+[X] SeekBar controls book progress when user moves progress bar 20%
 [X] Book continues playing when activity is restarted 20%
-[ ] Controls continue to function and Now Playing shows correct book when activity is restarted 10% */
+[X] Controls continue to function and Now Playing shows correct book when activity is restarted 10% */
 
 
 
@@ -17,7 +17,9 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.service.controls.Control
 import android.util.Log
 import android.view.View
@@ -39,20 +41,20 @@ lateinit var bookListVM: BookListViewModel
 lateinit var audioBinder: PlayerService.MediaControlBinder
 
 
-
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
     ControlFragment.ControlFragmentInterface {
 
     var isConnected: Boolean = false
+    private var bookProgress: PlayerService.BookProgress? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bindService(Intent(this, PlayerService::class.java)
-            , serviceConnection
-            , BIND_AUTO_CREATE)
+        bindService(
+            Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
+        )
 
         val searchButton = findViewById<Button>(R.id.button_Search)
 
@@ -186,40 +188,48 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     }
 
     override fun playCurrentBook(bookId: Int, progress: Int) {
-        if(isConnected){
-            if(progress < 1)
+        if (isConnected) {
+            if (progress < 1)
                 audioBinder.play(bookId)
-            else{
-                Log.d("Book Status", "Book is playing")
+            else {
+                Log.d("Book Status", "Another book is already playing")
             }
-        }
-        else
-            Log.d("Service", "NOT CONNECTED")
+        } else
+            Log.d("Service", "The service is not connected.")
     }
 
     override fun stopCurrentBook() {
-        if(isConnected) {
+        if (isConnected) {
             audioBinder.stop()
         }
     }
 
     override fun pauseCurrentBook() {
-        if(isConnected) {
+        if (isConnected) {
             audioBinder.pause()
         }
     }
 
     override fun seekBook(Position: Int) {
-        if(isConnected) {
-//            audioBinder.setProgressHandler()
+        // Seekbar is passed the current progress of the book as progress
+        if (isConnected) {
+            audioBinder.seekTo(Position)
         }
     }
 
-    val serviceConnection = object: ServiceConnection {
+
+
+
+    val progressHandler = Handler(Looper.getMainLooper()) {
+        bookProgress = it.obj as? PlayerService.BookProgress
+        true
+    }
+
+    private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             isConnected = true
             audioBinder = service as PlayerService.MediaControlBinder
-//            audioBinder.setProgressHandler(progressHandler)
+            audioBinder.setProgressHandler(progressHandler)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {

@@ -40,7 +40,7 @@
         android:id="@+id/container3"
         android:name="com.example.assignment7audiobookplayer.ControlFragment"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="70dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="1dp"
