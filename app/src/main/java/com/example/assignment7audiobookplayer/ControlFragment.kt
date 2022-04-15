@@ -1,13 +1,12 @@
 package com.example.assignment7audiobookplayer
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.SeekBar
-import android.widget.Toast
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
@@ -42,6 +41,9 @@ class ControlFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val playButton = view.findViewById<ImageButton>(R.id.imageButton_play)
+        val pauseButton = view.findViewById<ImageButton>(R.id.imageButton_pause)
+        val stopButton = view.findViewById<ImageButton>(R.id.imageButton_stop)
+        val nowPlayingText = view.findViewById<TextView>(R.id.nowPlayingBook)
         val seekBar = view.findViewById<SeekBar>(R.id.seekBar)
 
 
@@ -52,39 +54,46 @@ class ControlFragment : Fragment() {
             seekBar.progress = 0
 
             playButton.setOnClickListener {
-                (requireActivity() as ControlFragment.ControlFragmentInterface).playBook(tempBook.id, seekBar.progress)
+                (requireActivity() as ControlFragment.ControlFragmentInterface).playCurrentBook(
+                    tempBook.id,
+                    seekBar.progress
+                )
+                nowPlayingText.text = tempBook.title
             }
+            stopButton.setOnClickListener {
+                (requireActivity() as ControlFragment.ControlFragmentInterface).stopCurrentBook()
+                seekBar.progress = 0
+            }
+            pauseButton.setOnClickListener {
+                (requireActivity() as ControlFragment.ControlFragmentInterface).pauseCurrentBook()
+            }
+            seekBar?.setOnSeekBarChangeListener(object :
+                SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
+
+                }
+
+                override fun onStartTrackingTouch(seek: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seek: SeekBar?) {
+                    (requireActivity() as ControlFragment.ControlFragmentInterface).seekBook(seek!!.progress)
+                }
+            })
         }
 
 
-
-
     }
+
     interface ControlFragmentInterface {
-        fun playBook(bookId : Int, progress: Int)
+        fun playCurrentBook(bookId: Int, progress: Int)
+        fun stopCurrentBook()
+        fun pauseCurrentBook()
+        fun seekBook(Position: Int)
     }
-
-
-
 
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ControlFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ControlFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }

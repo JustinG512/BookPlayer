@@ -1,14 +1,14 @@
 /*Assignment Self Grading Live Tracker
 
-[X] Search button added to main activity to launch Search 5%
-[X] Android’s built-in Search Dialog is successfully launched when use clicks search button 15%
-[X] BookDetailsFragment is updated to show book cover image 5%
-[X] User is able to perform a search to the Web Service and receive all or a subset of books 25%
-[X] App always shows the BookListFragment after a search is performed 15%
-[X] Updates BookListFragment’s RecyclerView with new books after search is complete 20%
-[X] Once retrieved, a list of books is retained if the activity is restarted (device rotated from
-    portrait to landscape or vice-versa), until the user performs another search – books returned
-    from new search will always replace old books 15% */
+[X] Integrated AudioBookService 10%
+[X] Properly integrate controls (Play, Stop, Pause) in ControlFragment with Now Playing label 20%
+[ ] SeekBar progress is associated with book duration 10%
+[ ] SeekBar updates as book plays to show current progress 10%
+[ ] SeekBar controls book progress when user moves progress bar 20%
+[X] Book continues playing when activity is restarted 20%
+[ ] Controls continue to function and Now Playing shows correct book when activity is restarted 10% */
+
+
 
 package com.example.assignment7audiobookplayer
 
@@ -185,22 +185,38 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
     }
 
-    override fun playBook(bookId: Int, progress: Int) {
+    override fun playCurrentBook(bookId: Int, progress: Int) {
         if(isConnected){
             if(progress < 1)
                 audioBinder.play(bookId)
             else{
-//                Log.d("Service", "${bookUri.toString()}")
-//                audioBinder.play(File(bookUri?.path), progress)
+                Log.d("Book Status", "Book is playing")
             }
         }
         else
             Log.d("Service", "NOT CONNECTED")
     }
 
+    override fun stopCurrentBook() {
+        if(isConnected) {
+            audioBinder.stop()
+        }
+    }
+
+    override fun pauseCurrentBook() {
+        if(isConnected) {
+            audioBinder.pause()
+        }
+    }
+
+    override fun seekBook(Position: Int) {
+        if(isConnected) {
+//            audioBinder.setProgressHandler()
+        }
+    }
+
     val serviceConnection = object: ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d("Service", "CONNECTED")
             isConnected = true
             audioBinder = service as PlayerService.MediaControlBinder
 //            audioBinder.setProgressHandler(progressHandler)
@@ -208,7 +224,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
         override fun onServiceDisconnected(p0: ComponentName?) {
             isConnected = false
-            Log.d("Service", "DISCONNECTED")
         }
     }
 
