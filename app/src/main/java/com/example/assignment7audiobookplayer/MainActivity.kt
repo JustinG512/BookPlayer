@@ -2,8 +2,8 @@
 
 [X] Integrated AudioBookService 10%
 [X] Properly integrate controls (Play, Stop, Pause) in ControlFragment with Now Playing label 20%
-[ ] SeekBar progress is associated with book duration 10%
-[ ] SeekBar updates as book plays to show current progress 10%
+[X] SeekBar progress is associated with book duration 10%
+[X] SeekBar updates as book plays to show current progress 10%
 [X] SeekBar controls book progress when user moves progress bar 20%
 [X] Book continues playing when activity is restarted 20%
 [X] Controls continue to function and Now Playing shows correct book when activity is restarted 10% */
@@ -47,27 +47,17 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        controlFrag = supportFragmentManager.findFragmentById(R.id.container3) as ControlFragment
-
-        bindService(
-            Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
-        )
-
         val searchButton = findViewById<Button>(R.id.button_Search)
-
+        lateinit var bookViewModel: BookViewModel
 
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
-        val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
+        bookViewModel = ViewModelProvider(this).get(BookViewModel::class.java)
 
-        // This will open the search dialog.  This code is very similar to what was
-        // done in class during the demo.
         searchButton.setOnClickListener {
             onSearchRequested()
             if (supportFragmentManager.backStackEntryCount > 0)
                 supportFragmentManager.popBackStack()
         }
-
 
         // Container 1
         val fragment = supportFragmentManager.findFragmentById(R.id.container1)
@@ -84,18 +74,26 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 .replace(R.id.container1, BookListFragment())
                 .commit()
 
-        // Container 3
-        if (supportFragmentManager.backStackEntryCount > 0)
-            supportFragmentManager.popBackStack()
-        else
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.container3, ControlFragment())
-                .commit()
-
         // Container 2
         if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
+        }
+
+        bindService(
+            Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
+        )
+
+        controlFrag = supportFragmentManager.findFragmentById(R.id.container3) as ControlFragment
+
+
+//        val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
+
+        // This will open the search dialog.  This code is very similar to what was
+        // done in class during the demo.
+        searchButton.setOnClickListener {
+            onSearchRequested()
+            if (supportFragmentManager.backStackEntryCount > 0)
+                supportFragmentManager.popBackStack()
         }
 
 
