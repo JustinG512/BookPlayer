@@ -11,6 +11,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import java.lang.Thread.sleep
 import java.util.*
 
 
@@ -46,7 +47,7 @@ class ControlFragment : Fragment() {
 
         stopButton.setOnClickListener {
             (requireActivity() as ControlFragment.ControlFragmentInterface).stopCurrentBook()
-//            seekBar.progress = 0
+            seekBar.progress = 0
         }
         pauseButton.setOnClickListener {
             (requireActivity() as ControlFragment.ControlFragmentInterface).pauseCurrentBook()
@@ -87,7 +88,9 @@ class ControlFragment : Fragment() {
     }
 
     public fun getProgress(progress: Int) {
-        requireActivity().findViewById<SeekBar>(R.id.seekBar).progress = progress
+//        if (activity != null) {
+            requireActivity().findViewById<SeekBar>(R.id.seekBar).progress = progress
+//        }
     }
 
     interface ControlFragmentInterface {

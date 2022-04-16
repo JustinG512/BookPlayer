@@ -20,12 +20,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.service.controls.Control
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import edu.temple.audlibplayer.PlayerService
@@ -36,9 +33,6 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
-
-
-
 
 
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
@@ -225,9 +219,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     private var bookProgress: PlayerService.BookProgress? = null
 
-    val progressHandler = Handler(Looper.getMainLooper()){
+    val progressHandler = Handler(Looper.getMainLooper()) {
         bookProgress = it.obj as? PlayerService.BookProgress
-        if(bookProgress?.progress != null)
+        if (bookProgress?.progress != null)
             controlFrag.getProgress(bookProgress!!.progress)
         true
     }
