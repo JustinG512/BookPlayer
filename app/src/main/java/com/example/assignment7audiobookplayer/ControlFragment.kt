@@ -44,6 +44,29 @@ class ControlFragment : Fragment() {
         val nowPlayingText = view.findViewById<TextView>(R.id.nowPlayingBook)
         val seekBar = view.findViewById<SeekBar>(R.id.seekBar)
 
+        stopButton.setOnClickListener {
+            (requireActivity() as ControlFragment.ControlFragmentInterface).stopCurrentBook()
+//            seekBar.progress = 0
+        }
+        pauseButton.setOnClickListener {
+            (requireActivity() as ControlFragment.ControlFragmentInterface).pauseCurrentBook()
+        }
+        seekBar?.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
+                Log.d(TAG, "Slider is moving to = $progress");
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seek: SeekBar?) {
+                (requireActivity() as ControlFragment.ControlFragmentInterface).seekBook(seek!!.progress)
+
+            }
+        })
+
+
 
         bookViewModel.getSelectedBook().observe(requireActivity()) {
             val tempBook = it
@@ -57,29 +80,14 @@ class ControlFragment : Fragment() {
                 )
                 nowPlayingText.text = tempBook.title
             }
-            stopButton.setOnClickListener {
-                (requireActivity() as ControlFragment.ControlFragmentInterface).stopCurrentBook()
-                seekBar.progress = 0
-            }
-            pauseButton.setOnClickListener {
-                (requireActivity() as ControlFragment.ControlFragmentInterface).pauseCurrentBook()
-            }
-            seekBar?.setOnSeekBarChangeListener(object :
-                SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
-                    Log.d(TAG, "Slider is moving to = $progress");
-                }
-                override fun onStartTrackingTouch(seek: SeekBar?) {
-                }
-                override fun onStopTrackingTouch(seek: SeekBar?) {
-                    (requireActivity() as ControlFragment.ControlFragmentInterface).seekBook(seek!!.progress)
 
-                }
-            })
-            
         }
 
 
+    }
+
+    public fun getProgress(progress: Int) {
+        requireActivity().findViewById<SeekBar>(R.id.seekBar).progress = progress
     }
 
     interface ControlFragmentInterface {
@@ -89,7 +97,4 @@ class ControlFragment : Fragment() {
         fun seekBook(Position: Int)
     }
 
-
-    companion object {
-    }
 }

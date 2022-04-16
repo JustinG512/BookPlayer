@@ -37,26 +37,31 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
 
-lateinit var bookListVM: BookListViewModel
-lateinit var audioBinder: PlayerService.MediaControlBinder
+
+
 
 
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
     ControlFragment.ControlFragmentInterface {
 
     var isConnected: Boolean = false
-    private var bookProgress: PlayerService.BookProgress? = null
-
+    lateinit var bookListVM: BookListViewModel
+    lateinit var audioBinder: PlayerService.MediaControlBinder
+    lateinit var controlFrag: ControlFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        controlFrag = supportFragmentManager.findFragmentById(R.id.container3) as ControlFragment
 
         bindService(
             Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
         )
 
         val searchButton = findViewById<Button>(R.id.button_Search)
+
 
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
         val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
@@ -101,6 +106,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
 
     }
+
 
     override fun bookSelected() {
         if (findViewById<View>(R.id.container2) == null) {
@@ -217,11 +223,12 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
     }
 
+    private var bookProgress: PlayerService.BookProgress? = null
 
-
-
-    val progressHandler = Handler(Looper.getMainLooper()) {
+    val progressHandler = Handler(Looper.getMainLooper()){
         bookProgress = it.obj as? PlayerService.BookProgress
+        if(bookProgress?.progress != null)
+            controlFrag.getProgress(bookProgress!!.progress)
         true
     }
 
