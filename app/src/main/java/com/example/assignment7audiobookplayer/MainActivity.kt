@@ -34,29 +34,33 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
 
-
+/*Begin Main Activity*/
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
     ControlFragment.ControlFragmentInterface {
 
+    /*Initialize bool variables*/
     var isConnected: Boolean = false
-    var once: Boolean = false
+    private var once: Boolean = false
 
-    lateinit var bookListVM: BookListViewModel
-//    lateinit var bookVM: BookViewModel
-    lateinit var bookViewModel: BookViewModel
+    /*Bring in my fragments and classes.  These will be developed later on*/
+    private lateinit var bookListVM: BookListViewModel
+    private lateinit var bookVM: BookViewModel
     lateinit var audioBinder: PlayerService.MediaControlBinder
-    lateinit var controlFrag: ControlFragment
+    private lateinit var controlFrag: ControlFragment
 
+    /*onCreate standard implantation*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /*Bring in my fragments and classes.  These will be developed later on*/
         val searchButton = findViewById<Button>(R.id.button_Search)
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
 
 
-        bookViewModel = ViewModelProvider(this).get(BookViewModel::class.java)
+        bookVM = ViewModelProvider(this)[BookViewModel::class.java]
 
+        /*Search Button*/
         searchButton.setOnClickListener {
             onSearchRequested()
             if (supportFragmentManager.backStackEntryCount > 0)
@@ -79,7 +83,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 .commit()
 
         // Container 2
-        if (bookViewModel.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
+        if (bookVM.getSelectedBook().value != null && findViewById<View>(R.id.container2) == null) {
             bookSelected()
         }
 
@@ -103,7 +107,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     }
 
-
+    /*When book is selected, this will compile the details in the container.*/
     override fun bookSelected() {
         if (findViewById<View>(R.id.container2) == null) {
             supportFragmentManager
@@ -139,11 +143,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             )
         }
 
-        Log.d("TEST", jsonArray.toString())
 
-
-        // This will sort through the incoming json data until it is empty.  Results will
-        // be returned accordingly
+        /*This will sort through the incoming json data until it is empty.  Results will be
+        returned accordingly*/
         for (i in 0 until jsonArray.length()) {
             jsonObject = jsonArray.getJSONObject(i)
             tempTitle = jsonObject.getString("title")
@@ -166,7 +168,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration)
             tempBookList.add(tempBook)
             Log.d(
-                "New Book created",
+                "New Book:",
                 "Ti:$tempTitle Au:$tempAuthor Id:$tempId Dur:$tempDuration Cov:$tempCover"
             )
         }
@@ -212,12 +214,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
     }
 
-    override fun onStop(){
+    override fun onStop() {
         val intent = Intent(this, PlayerService::class.java)
-        if (this != null) {
-            this.startService(intent)
-        }
-        Log.d("Service", "Activity onStop")
+        this.startService(intent)
         super.onStop()
     }
 
@@ -231,23 +230,26 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     private var bookProgress: PlayerService.BookProgress? = null
 
 
-    val progressHandler = Handler(Looper.getMainLooper()){
+    val progressHandler = Handler(Looper.getMainLooper()) {
         bookProgress = it.obj as? PlayerService.BookProgress
-        if(bookProgress?.progress != null && this::controlFrag.isInitialized)
+        if (bookProgress?.progress != null && this::controlFrag.isInitialized)
+            Log.d("bookProgress?.progress", "+")
             controlFrag.getProgress(bookProgress!!.progress)
 
-        if(audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized){
-            CoroutineScope(Dispatchers.Main).launch() {
+        if (audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized) {
+            CoroutineScope(Dispatchers.Main).launch {
                 updateControlFragment(bookProgress!!.bookId)
+                Log.d("updateControlFragment(bookProgress!!.bookId)", "+")
+
             }
         }
 
         true
     }
 
-    suspend fun updateControlFragment(bookId : Int){
+    private suspend fun updateControlFragment(bookId: Int) {
         Log.d("NewTest", "updateControlFragment")
-        val tempBook : Book
+        val tempBook: Book
         withContext(Dispatchers.IO) {
             val jsonObject = JSONObject(
                 URL("https://kamorris.com/lab/cis3515/book.php?id=$bookId")
@@ -255,10 +257,15 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     .bufferedReader()
                     .readLine()
             )
-            tempBook = Book(jsonObject.getString("title"), jsonObject.getString("author"),
-                jsonObject.getInt("id"), jsonObject.getString("cover_url"), jsonObject.getInt("duration"))
+            tempBook = Book(
+                jsonObject.getString("title"),
+                jsonObject.getString("author"),
+                jsonObject.getInt("id"),
+                jsonObject.getString("cover_url"),
+                jsonObject.getInt("duration")
+            )
         }
-        bookViewModel.setSelectedBook(tempBook)
+        bookVM.setSelectedBook(tempBook)
         once = false
     }
 
@@ -273,8 +280,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             isConnected = false
         }
     }
-
-
 
 
 }
