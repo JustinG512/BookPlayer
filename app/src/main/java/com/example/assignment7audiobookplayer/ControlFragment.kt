@@ -93,6 +93,7 @@ class ControlFragment : Fragment() {
 //        }
     }
 
+
     interface ControlFragmentInterface {
         fun playCurrentBook(bookId: Int, progress: Int)
         fun stopCurrentBook()

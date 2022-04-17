@@ -39,7 +39,11 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     ControlFragment.ControlFragmentInterface {
 
     var isConnected: Boolean = false
+    var once: Boolean = false
+
     lateinit var bookListVM: BookListViewModel
+//    lateinit var bookVM: BookViewModel
+    lateinit var bookViewModel: BookViewModel
     lateinit var audioBinder: PlayerService.MediaControlBinder
     lateinit var controlFrag: ControlFragment
 
@@ -48,9 +52,9 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         setContentView(R.layout.activity_main)
 
         val searchButton = findViewById<Button>(R.id.button_Search)
-        lateinit var bookViewModel: BookViewModel
-
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
+
+
         bookViewModel = ViewModelProvider(this).get(BookViewModel::class.java)
 
         searchButton.setOnClickListener {
@@ -208,6 +212,15 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
     }
 
+    override fun onStop(){
+        val intent = Intent(this, PlayerService::class.java)
+        if (this != null) {
+            this.startService(intent)
+        }
+        Log.d("Service", "Activity onStop")
+        super.onStop()
+    }
+
     override fun seekBook(Position: Int) {
         // Seekbar is passed the current progress of the book as progress
         if (isConnected) {
@@ -217,11 +230,36 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     private var bookProgress: PlayerService.BookProgress? = null
 
-    val progressHandler = Handler(Looper.getMainLooper()) {
+
+    val progressHandler = Handler(Looper.getMainLooper()){
         bookProgress = it.obj as? PlayerService.BookProgress
-        if (bookProgress?.progress != null)
+        if(bookProgress?.progress != null && this::controlFrag.isInitialized)
             controlFrag.getProgress(bookProgress!!.progress)
+
+        if(audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized){
+            CoroutineScope(Dispatchers.Main).launch() {
+                updateControlFragment(bookProgress!!.bookId)
+            }
+        }
+
         true
+    }
+
+    suspend fun updateControlFragment(bookId : Int){
+        Log.d("NewTest", "updateControlFragment")
+        val tempBook : Book
+        withContext(Dispatchers.IO) {
+            val jsonObject = JSONObject(
+                URL("https://kamorris.com/lab/cis3515/book.php?id=$bookId")
+                    .openStream()
+                    .bufferedReader()
+                    .readLine()
+            )
+            tempBook = Book(jsonObject.getString("title"), jsonObject.getString("author"),
+                jsonObject.getInt("id"), jsonObject.getString("cover_url"), jsonObject.getInt("duration"))
+        }
+        bookViewModel.setSelectedBook(tempBook)
+        once = false
     }
 
     private val serviceConnection = object : ServiceConnection {
@@ -235,5 +273,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             isConnected = false
         }
     }
+
+
+
 
 }
