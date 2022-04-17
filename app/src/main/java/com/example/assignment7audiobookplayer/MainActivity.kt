@@ -238,9 +238,10 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     val progressHandler = Handler(Looper.getMainLooper()) {
         bookProgress = it.obj as? PlayerService.BookProgress
+
         if (bookProgress?.progress != null && this::controlFrag.isInitialized)
-            Log.d("bookProgress?.progress", "+")
             controlFrag.getProgress(bookProgress!!.progress)
+            Log.d("bookProgress?.progress", "+")
 
         if (audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized) {
             CoroutineScope(Dispatchers.Main).launch {
@@ -254,7 +255,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     }
 
     private suspend fun updateControlFragment(bookId: Int) {
-        Log.d("NewTest", "updateControlFragment")
         val tempBook: Book
         withContext(Dispatchers.IO) {
             val jsonObject = JSONObject(
