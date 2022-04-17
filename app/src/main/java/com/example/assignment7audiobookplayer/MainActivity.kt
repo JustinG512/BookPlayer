@@ -1,4 +1,10 @@
-/*Assignment Self Grading Live Tracker
+/*
+Assignment Self Grading Live Tracker
+
+Assignment 9
+Due Saturday by 11:59pm Points 400 Submitting a website url Available Apr 6 at 12am - Apr 17 at 12:30am 11 days
+
+Justin Gallagher
 
 [X] Integrated AudioBookService 10%
 [X] Properly integrate controls (Play, Stop, Pause) in ControlFragment with Now Playing label 20%
