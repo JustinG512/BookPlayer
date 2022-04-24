@@ -1,18 +1,21 @@
 /*
 Assignment Self Grading Live Tracker
 
-Assignment 9
-Due Saturday by 11:59pm Points 400 Submitting a website url Available Apr 6 at 12am - Apr 17 at 12:30am 11 days
+Assignment 10
+Due Monday by 11:59pm Points 100 Submitting a website url Available Apr 17 at 12am - Apr 26 at 12:30am 9 days
 
 Justin Gallagher
 
-[X] Integrated AudioBookService 10%
-[X] Properly integrate controls (Play, Stop, Pause) in ControlFragment with Now Playing label 20%
-[X] SeekBar progress is associated with book duration 10%
-[X] SeekBar updates as book plays to show current progress 10%
-[X] SeekBar controls book progress when user moves progress bar 20%
-[X] Book continues playing when activity is restarted 20%
-[X] Controls continue to function and Now Playing shows correct book when activity is restarted 10% */
+Rubric
+[ ] Application can download audiobooks if no local copy of book exists 25%
+[ ] Application keeps track of books returned from last search, even after activity restart 25%
+[X] Book progress is saved when a book is paused 10%
+[ ] Book progress is saved if a new book is started while another book was previously playing 10%
+[X] Pressing Stop when a book is playing resets its saved position to 0 seconds 10%
+[ ] Application plays downloaded version of audiobook if available, or it streams if not 10%
+[ ] Book plays from previously saved progress if downloaded, but starts from 0 if streaming 10%
+
+ */
 
 
 
@@ -38,7 +41,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.ObjectOutputStream
 import java.net.URL
+
 
 /*Begin Main Activity*/
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
@@ -47,6 +55,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     /*Initialize bool variables*/
     var isConnected: Boolean = false
     private var once: Boolean = false
+    var path = ""
+
 
     /*Bring in my fragments and classes.  These will be developed later on*/
     private lateinit var bookListVM: BookListViewModel
@@ -62,6 +72,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         /*Bring in my fragments and classes.  These will be developed later on*/
         val searchButton = findViewById<Button>(R.id.button_Search)
         bookListVM = ViewModelProvider(this)[BookListViewModel::class.java]
+        path = this.filesDir.absolutePath
 
 
         bookVM = ViewModelProvider(this)[BookViewModel::class.java]
@@ -166,6 +177,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                         .bufferedReader()
                         .readLine()
                 )
+
             }
 
             tempDuration = jsonObjectID.getInt("duration")
@@ -177,6 +189,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 "New Book:",
                 "Ti:$tempTitle Au:$tempAuthor Id:$tempId Dur:$tempDuration Cov:$tempCover"
             )
+
+
         }
 
         //if(jsonArray.length() != 0){
@@ -198,6 +212,12 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     }
 
     override fun playCurrentBook(bookId: Int, progress: Int) {
+
+        val hmFile = File("$path/hmFile")
+        ObjectOutputStream(FileOutputStream(hmFile)).use{ it ->
+//            it.writeObject(hashMap)
+            it.close()
+        }
         if (isConnected) {
             if (progress < 1)
                 audioBinder.play(bookId)
@@ -270,6 +290,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 jsonObject.getString("cover_url"),
                 jsonObject.getInt("duration")
             )
+
         }
         bookVM.setSelectedBook(tempBook)
         once = false
@@ -285,6 +306,19 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         override fun onServiceDisconnected(p0: ComponentName?) {
             isConnected = false
         }
+    }
+
+    private suspend fun downloadActiveBook(link: String, path: String) {
+        withContext(Dispatchers.IO) {
+            URL(link).openStream().use { input ->
+                FileOutputStream(File(path)).use { output ->
+                    input.copyTo(output)
+                    output.close()
+                }
+                input.close()
+            }
+        }
+        Log.d("Download", "Finished")
     }
 
 
