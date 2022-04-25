@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             tempDuration = jsonObjectID.getInt("duration")
 
 
-            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration)
+            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration, false)
             tempBookList.add(tempBook)
             Log.d(
                 "New Book:",
@@ -288,7 +288,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 jsonObject.getString("author"),
                 jsonObject.getInt("id"),
                 jsonObject.getString("cover_url"),
-                jsonObject.getInt("duration")
+                jsonObject.getInt("duration"),
+                false
             )
 
         }
