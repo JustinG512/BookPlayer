@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     val file = File("$path/$bookId")
                     Log.d("playBook HashMap", "$hashMap")
                     Log.d("playBook with id", "$bookId")
-                    audioBinder.play(file, bookId)
+                    audioBinder.play(file, hashMap.get(bookId)!!)
                     bookVM.setPlayingBook(this)
                 } else {
                     audioBinder.play(bookId)
@@ -307,14 +307,14 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     }
 
     override fun pauseCurrentBook() {
-        val toast =
-            Toast.makeText(applicationContext, "Pause Pressed. BookMark Added", Toast.LENGTH_SHORT)
-        toast.show()
         if (isConnected) {
             audioBinder.pause()
             val hmFile = "$path/hmFile"
             ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
                 it.writeObject(hashMap)
+                val toast =
+                    Toast.makeText(applicationContext, "Pause Pressed. BookMark Added", Toast.LENGTH_SHORT)
+                toast.show()
                 it.close()
             }
         }
