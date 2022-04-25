@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
         /*Initialize and set HashMap File*/
         Log.d("filePath", path)
+        /*Determine is hashMapFile exists.  If not, create one*/
         if (File("$path/hmFile").exists()) {
             ObjectInputStream(FileInputStream("$path/hmFile")).use { it ->
                 hashMap = it.readObject() as HashMap<Int, Int>
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             File("$path/hmFile").createNewFile()
         }
 
+        /*Determine is search file exists.  If not, create one*/
         if (File("$path/search").exists() && File("$path/search").length() > 0) {
             try {
                 ObjectInputStream(FileInputStream("$path/search")).use { it ->
@@ -109,8 +111,14 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         } else if (!File("$path/search").exists()) {
             File("$path/search").createNewFile()
         } else {
-            Log.d("searchWord", "File is empty")
+            Log.d("search", "File is empty")
         }
+
+        /* If anything is contained in the search file, this will be loaded in launch*/
+        if (searchWord.length > 0)
+            CoroutineScope(Dispatchers.Main).launch() {
+                searchBooks(searchWord)
+            }
 
         // Containers
         val fragment = supportFragmentManager.findFragmentById(R.id.container1)
@@ -135,6 +143,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         bindService(
             Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
         )
+
 
         // Container 3
         controlFrag = supportFragmentManager.findFragmentById(R.id.container3) as ControlFragment
@@ -233,6 +242,12 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             intent.getStringExtra(SearchManager.QUERY)?.also { query ->
                 CoroutineScope(Dispatchers.Main).launch {
                     searchBooks(query)
+                    val searchFile = "$path/search"
+                    ObjectOutputStream(FileOutputStream(searchFile)).use { it ->
+                        it.writeObject(query)
+                        it.close()
+                    }
+
                 }
             }
         }
@@ -256,7 +271,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     toast.show()
                     val file = File("$path/$bookId")
                     Log.d("playBook HashMap", "$hashMap")
-                    audioBinder.play(file, hashMap.get(bookId)!!)
+                    Log.d("playBook with id", "$bookId")
+                    audioBinder.play(file, bookId)
                     bookVM.setPlayingBook(this)
                 } else {
                     audioBinder.play(bookId)
