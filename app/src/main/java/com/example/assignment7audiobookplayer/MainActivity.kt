@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     val file = File("$path/$bookId")
                     Log.d("playBook HashMap", "$hashMap")
                     Log.d("playBook with id", "$bookId")
-                    audioBinder.play(file, hashMap.get(bookId)!!)
+                    audioBinder.play(file, bookId)
                     bookVM.setPlayingBook(this)
                 } else {
                     audioBinder.play(bookId)
@@ -341,7 +341,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
         if (bookProgress?.progress != null && this::controlFrag.isInitialized)
             controlFrag.getProgress(bookProgress!!.progress)
-        Log.d("bookProgress?.progress", "+")
 
         if (audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized) {
             CoroutineScope(Dispatchers.Main).launch {
