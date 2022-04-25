@@ -46,23 +46,23 @@ class ControlFragment : Fragment() {
         val seekBar = view.findViewById<SeekBar>(R.id.seekBar)
 
         stopButton.setOnClickListener {
-            (requireActivity() as ControlFragment.ControlFragmentInterface).stopCurrentBook()
+            (requireActivity() as ControlFragmentInterface).stopCurrentBook()
             seekBar.progress = 0
         }
         pauseButton.setOnClickListener {
-            (requireActivity() as ControlFragment.ControlFragmentInterface).pauseCurrentBook()
+            (requireActivity() as ControlFragmentInterface).pauseCurrentBook()
         }
         seekBar?.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
-                Log.d(TAG, "Slider is moving to = $progress");
+                Log.d(TAG, "Slider is moving to = $progress")
             }
 
             override fun onStartTrackingTouch(seek: SeekBar?) {
             }
 
             override fun onStopTrackingTouch(seek: SeekBar?) {
-                (requireActivity() as ControlFragment.ControlFragmentInterface).seekBook(seek!!.progress)
+                (requireActivity() as ControlFragmentInterface).seekBook(seek!!.progress)
 
             }
         })
@@ -75,7 +75,7 @@ class ControlFragment : Fragment() {
             seekBar.progress = 0
 
             playButton.setOnClickListener {
-                (requireActivity() as ControlFragment.ControlFragmentInterface).playCurrentBook(
+                (requireActivity() as ControlFragmentInterface).playCurrentBook(
                     tempBook.id,
                     seekBar.progress
                 )
@@ -87,10 +87,8 @@ class ControlFragment : Fragment() {
 
     }
 
-    public fun getProgress(progress: Int) {
-//        if (activity != null) {
-            requireActivity().findViewById<SeekBar>(R.id.seekBar).progress = progress
-//        }
+    fun getProgress(progress: Int) {
+        requireActivity().findViewById<SeekBar>(R.id.seekBar).progress = progress
     }
 
 

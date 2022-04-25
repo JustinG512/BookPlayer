@@ -3,15 +3,15 @@ package com.example.assignment7audiobookplayer
 import android.os.Parcel
 import android.os.Parcelable
 
-class BookList(): Parcelable {
+class BookList() : Parcelable {
 
-    private val list : ArrayList<Book> = ArrayList()
+    private val list: ArrayList<Book> = ArrayList()
 
     constructor(parcel: Parcel) : this() {
         parcel.writeList(list)
     }
 
-    fun add(_book : Book){
+    fun add(_book: Book) {
         list.add(_book)
     }
 
@@ -19,15 +19,15 @@ class BookList(): Parcelable {
 //        list.remove(_book)
 //    }
 
-    fun clear(){
+    fun clear() {
         list.removeAll(list)
     }
 
-    operator fun get(x : Int) : Book{
+    operator fun get(x: Int): Book {
         return list[x]
     }
 
-    fun size() : Int{
+    fun size(): Int {
         return list.size
     }
 

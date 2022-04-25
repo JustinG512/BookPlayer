@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class BookListFragment : Fragment() {
     //private var recyclerView : RecyclerView? = null
-    private lateinit var bookViewModel : BookViewModel
+    private lateinit var bookViewModel: BookViewModel
     private lateinit var bookListVM: BookListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +32,7 @@ class BookListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with (view as RecyclerView) {
+        with(view as RecyclerView) {
 
             var books: BookList
 
@@ -40,8 +40,9 @@ class BookListFragment : Fragment() {
 
                 books = bookListVM.getBookList()
 
-                books.run{
-                    val clickEvent = { book:Book -> bookViewModel.setSelectedBook(book)
+                books.run {
+                    val clickEvent = { book: Book ->
+                        bookViewModel.setSelectedBook(book)
                         (requireActivity() as SelectionFragmentInterface).bookSelected()
                     }
 
@@ -52,12 +53,13 @@ class BookListFragment : Fragment() {
         }
     }
 
-    class BookListAdapter(_books: BookList, _clickEvent: (Book)->Unit) : RecyclerView.Adapter<BookListAdapter.BookListViewHolder>() {
+    class BookListAdapter(_books: BookList, _clickEvent: (Book) -> Unit) :
+        RecyclerView.Adapter<BookListAdapter.BookListViewHolder>() {
 
         private val books = _books
         val clickEvent = _clickEvent
 
-        class BookListViewHolder(_view: View) : RecyclerView.ViewHolder(_view){
+        class BookListViewHolder(_view: View) : RecyclerView.ViewHolder(_view) {
             val view = _view
             val title: TextView = _view.findViewById(R.id.titleTextView)
             val author: TextView = _view.findViewById(R.id.authorTextView)

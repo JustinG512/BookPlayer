@@ -6,32 +6,40 @@ import androidx.lifecycle.LiveData
 
 class BookListViewModel : ViewModel() {
 
-    private var x : Int = 0
-    private val viewModelBookList : BookList = BookList()
+    private var x: Int = 0
+    private val vmBookList: BookList = BookList()
 
-    private val change : MutableLiveData<Int> by lazy {
+    private val change: MutableLiveData<Int> by lazy {
         MutableLiveData<Int>()
     }
 
-    fun increment(){
+    fun increment() {
         change.value = x + 1
         x++
     }
 
-    fun getIncrement() : LiveData<Int> {
+    fun getIncrement(): LiveData<Int> {
         return change
     }
 
-    fun setBookList(bookList : BookList) {
-        viewModelBookList.clear()
+    fun setBookList(bookList: BookList) {
+        vmBookList.clear()
 
-        for(i in 0 until bookList.size()){
-            viewModelBookList.add(bookList[i])
+        for (i in 0 until bookList.size()) {
+            vmBookList.add(bookList[i])
         }
     }
 
-    fun getBookList() : BookList {
-        return viewModelBookList
+    fun getBookList(): BookList {
+        return vmBookList
+    }
+
+    fun getBook(id: Int): Book? {
+        for (i in 0 until vmBookList.size()) {
+            if (vmBookList[i].id == id)
+                return vmBookList[i]
+        }
+        return null
     }
 
 }

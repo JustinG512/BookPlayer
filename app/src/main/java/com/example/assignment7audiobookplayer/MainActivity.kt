@@ -7,13 +7,13 @@ Due Monday by 11:59pm Points 100 Submitting a website url Available Apr 17 at 12
 Justin Gallagher
 
 Rubric
-[ ] Application can download audiobooks if no local copy of book exists 25%
-[ ] Application keeps track of books returned from last search, even after activity restart 25%
-[X] Book progress is saved when a book is paused 10%
-[ ] Book progress is saved if a new book is started while another book was previously playing 10%
+[X] Application can download audiobooks if no local copy of book exists 25%
+[X] Application keeps track of books returned from last search, even after activity restart 25%
+[Sort of] Book progress is saved when a book is paused 10%
+[Sort of] Book progress is saved if a new book is started while another book was previously playing 10%
 [X] Pressing Stop when a book is playing resets its saved position to 0 seconds 10%
-[ ] Application plays downloaded version of audiobook if available, or it streams if not 10%
-[ ] Book plays from previously saved progress if downloaded, but starts from 0 if streaming 10%
+[X] Application plays downloaded version of audiobook if available, or it streams if not 10%
+[Sort of] Book plays from previously saved progress if downloaded, but starts from 0 if streaming 10%
 
  */
 
@@ -32,6 +32,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import edu.temple.audlibplayer.PlayerService
@@ -41,28 +42,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.ObjectOutputStream
+import java.io.*
 import java.net.URL
 
 
 /*Begin Main Activity*/
+@Suppress("BlockingMethodInNonBlockingContext")
 class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInterface,
     ControlFragment.ControlFragmentInterface {
 
     /*Initialize bool variables*/
     var isConnected: Boolean = false
     private var once: Boolean = false
-    var path = ""
+
+    /*Initialize variables*/
+    lateinit var path: String
+    var hashMap: HashMap<Int, Int> = HashMap<Int, Int>()
+    var searchWord: String = ""
 
 
     /*Bring in my fragments and classes.  These will be developed later on*/
     private lateinit var bookListVM: BookListViewModel
     private lateinit var bookVM: BookViewModel
-    lateinit var audioBinder: PlayerService.MediaControlBinder
     private lateinit var controlFrag: ControlFragment
+
+    /*Initialize audioBinder*/
+    lateinit var audioBinder: PlayerService.MediaControlBinder
 
     /*onCreate standard implantation*/
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +89,30 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 supportFragmentManager.popBackStack()
         }
 
-        // Container 1
+        /*Initialize and set HashMap File*/
+        Log.d("filePath", path)
+        if (File("$path/hmFile").exists()) {
+            ObjectInputStream(FileInputStream("$path/hmFile")).use { it ->
+                hashMap = it.readObject() as HashMap<Int, Int>
+            }
+        } else {
+            File("$path/hmFile").createNewFile()
+        }
+
+        if (File("$path/search").exists() && File("$path/search").length() > 0) {
+            try {
+                ObjectInputStream(FileInputStream("$path/search")).use { it ->
+                    searchWord = it.readObject() as String
+                }
+            } catch (e: Exception) {
+            }
+        } else if (!File("$path/search").exists()) {
+            File("$path/search").createNewFile()
+        } else {
+            Log.d("searchWord", "File is empty")
+        }
+
+        // Containers
         val fragment = supportFragmentManager.findFragmentById(R.id.container1)
         if (fragment != null) {
             supportFragmentManager.beginTransaction().remove(fragment).commit()
@@ -108,10 +136,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE
         )
 
+        // Container 3
         controlFrag = supportFragmentManager.findFragmentById(R.id.container3) as ControlFragment
-
-
-//        val bookViewModel: BookViewModel = ViewModelProvider(this)[BookViewModel::class.java]
 
         // This will open the search dialog.  This code is very similar to what was
         // done in class during the demo.
@@ -120,8 +146,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             if (supportFragmentManager.backStackEntryCount > 0)
                 supportFragmentManager.popBackStack()
         }
-
-
     }
 
     /*When book is selected, this will compile the details in the container.*/
@@ -183,7 +207,10 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             tempDuration = jsonObjectID.getInt("duration")
 
 
-            tempBook = Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration, false)
+            tempBook = if (File("$path/$tempId").exists())
+                Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration, true)
+            else
+                Book(tempTitle, tempAuthor, tempId, tempCover, tempDuration, false)
             tempBookList.add(tempBook)
             Log.d(
                 "New Book:",
@@ -214,29 +241,66 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
     override fun playCurrentBook(bookId: Int, progress: Int) {
 
         val hmFile = File("$path/hmFile")
-        ObjectOutputStream(FileOutputStream(hmFile)).use{ it ->
-//            it.writeObject(hashMap)
+        ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
+            it.writeObject(hashMap)
             it.close()
         }
         if (isConnected) {
-            if (progress < 1)
-                audioBinder.play(bookId)
-            else {
-                Log.d("Book Status", "Another book is already playing")
+            bookListVM.getBook(bookId)?.run {
+                if (this.downloaded) {
+                    val toast = Toast.makeText(
+                        applicationContext,
+                        "Playing previously downloaded book",
+                        Toast.LENGTH_SHORT
+                    )
+                    toast.show()
+                    val file = File("$path/$bookId")
+                    Log.d("playBook HashMap", "$hashMap")
+                    audioBinder.play(file, hashMap.get(bookId)!!)
+                    bookVM.setPlayingBook(this)
+                } else {
+                    audioBinder.play(bookId)
+                    bookVM.setPlayingBook(this)
+                    CoroutineScope(Dispatchers.Main).launch() {
+                        val toast = Toast.makeText(
+                            applicationContext,
+                            "Download started...",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                        downloadActiveBook(
+                            "https://kamorris.com/lab/audlib/download.php?id=$bookId",
+                            "$path/$bookId"
+                        )
+                    }
+                    hashMap.put(bookId, 0)
+                }
             }
         } else
-            Log.d("Service", "The service is not connected.")
+            Log.d("Service", "The service is not conneted")
     }
 
     override fun stopCurrentBook() {
+        val toast = Toast.makeText(applicationContext, "Stop Pressed", Toast.LENGTH_SHORT)
+        toast.show()
         if (isConnected) {
             audioBinder.stop()
+            controlFrag.getProgress(0)
+            hashMap.replace(bookVM.getPlayingBook().value!!.id, 0)
         }
     }
 
     override fun pauseCurrentBook() {
+        val toast =
+            Toast.makeText(applicationContext, "Pause Pressed. BookMark Added", Toast.LENGTH_SHORT)
+        toast.show()
         if (isConnected) {
             audioBinder.pause()
+            val hmFile = "$path/hmFile"
+            ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
+                it.writeObject(hashMap)
+                it.close()
+            }
         }
     }
 
@@ -261,7 +325,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
         if (bookProgress?.progress != null && this::controlFrag.isInitialized)
             controlFrag.getProgress(bookProgress!!.progress)
-            Log.d("bookProgress?.progress", "+")
+        Log.d("bookProgress?.progress", "+")
 
         if (audioBinder.isPlaying && once && bookProgress?.progress != null && this@MainActivity::controlFrag.isInitialized) {
             CoroutineScope(Dispatchers.Main).launch {
@@ -319,7 +383,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 input.close()
             }
         }
-        Log.d("Download", "Finished")
+        val toast = Toast.makeText(applicationContext, "Download Finished", Toast.LENGTH_SHORT)
+        toast.show()
     }
 
 
