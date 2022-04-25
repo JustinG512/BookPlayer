@@ -320,7 +320,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
                 it.writeObject(hashMap)
                 val toast =
-                    Toast.makeText(applicationContext, "Pause Pressed. BookMark Added", Toast.LENGTH_SHORT)
+                    Toast.makeText(applicationContext, "Paused: Bookmark added", Toast.LENGTH_SHORT)
                 toast.show()
                 it.close()
             }
