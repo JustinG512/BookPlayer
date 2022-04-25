@@ -270,9 +270,16 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     )
                     toast.show()
                     val file = File("$path/$bookId")
-                    Log.d("playBook HashMap", "$hashMap")
+                    Log.d("Play Book from HashMap", "$hashMap")
                     Log.d("playBook with id", "$bookId")
-                    audioBinder.play(file, bookId)
+
+                    // Resolve any issues with missing book placement
+                    if (hashMap.get(bookId) == null) {
+                        hashMap.put(bookId, 0)
+                    }
+                    //play book from file and last played location
+                    audioBinder.play(file, hashMap.get(bookId)!!)
+//                    audioBinder.play(file, bookId)
                     bookVM.setPlayingBook(this)
                 } else {
                     audioBinder.play(bookId)
@@ -293,7 +300,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                 }
             }
         } else
-            Log.d("Service", "The service is not conneted")
+            Log.d("Service", "The service is not connected")
     }
 
     override fun stopCurrentBook() {
@@ -388,6 +395,8 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         }
     }
 
+    /*This will download a copy of the current book to the default path and label the file with
+    the ID number of the book. */
     private suspend fun downloadActiveBook(link: String, path: String) {
         withContext(Dispatchers.IO) {
             URL(link).openStream().use { input ->
