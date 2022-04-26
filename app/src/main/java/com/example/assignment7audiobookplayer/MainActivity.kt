@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
     /*Initialize variables*/
     lateinit var path: String
-    var hashMap: HashMap<Int, Int> = HashMap<Int, Int>()
+    var bookListHashMap: HashMap<Int, Int> = HashMap<Int, Int>()
     var searchWord: String = ""
 
 
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         /*Determine is hashMapFile exists.  If not, create one*/
         if (File("$path/hmFile").exists()) {
             ObjectInputStream(FileInputStream("$path/hmFile")).use { it ->
-                hashMap = it.readObject() as HashMap<Int, Int>
+                bookListHashMap = it.readObject() as HashMap<Int, Int>
             }
         } else {
             File("$path/hmFile").createNewFile()
@@ -257,7 +257,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
 
         val hmFile = File("$path/hmFile")
         ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
-            it.writeObject(hashMap)
+            it.writeObject(bookListHashMap)
             it.close()
         }
         if (isConnected) {
@@ -270,15 +270,15 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                     )
                     toast.show()
                     val file = File("$path/$bookId")
-                    Log.d("Play Book from HashMap", "$hashMap")
+                    Log.d("Play Book from HashMap", "$bookListHashMap")
                     Log.d("playBook with id", "$bookId")
 
                     // Resolve any issues with missing book placement
-                    if (hashMap.get(bookId) == null) {
-                        hashMap.put(bookId, 0)
+                    if (bookListHashMap.get(bookId) == null) {
+                        bookListHashMap.put(bookId, 0)
                     }
                     //play book from file and last played location
-                    audioBinder.play(file, hashMap.get(bookId)!!)
+                    audioBinder.play(file, bookListHashMap.get(bookId)!!)
 //                    audioBinder.play(file, bookId)
                     bookVM.setPlayingBook(this)
                 } else {
@@ -296,7 +296,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
                             "$path/$bookId"
                         )
                     }
-                    hashMap.put(bookId, 0)
+                    bookListHashMap.put(bookId, 0)
                 }
             }
         } else
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
         if (isConnected) {
             audioBinder.stop()
             controlFrag.getProgress(0)
-            hashMap.replace(bookVM.getPlayingBook().value!!.id, 0)
+            bookListHashMap.replace(bookVM.getPlayingBook().value!!.id, 0)
         }
     }
 
@@ -318,7 +318,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.SelectionFragmentInte
             audioBinder.pause()
             val hmFile = "$path/hmFile"
             ObjectOutputStream(FileOutputStream(hmFile)).use { it ->
-                it.writeObject(hashMap)
+                it.writeObject(bookListHashMap)
                 val toast =
                     Toast.makeText(applicationContext, "Paused: Bookmark added", Toast.LENGTH_SHORT)
                 toast.show()
